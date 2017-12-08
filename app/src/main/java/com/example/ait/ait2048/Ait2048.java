@@ -57,6 +57,50 @@ public final class Ait2048 {
         });
         adb.show();
     }
+    static void setUpChanges(TextView[][] tableOfTextViews,TheSquare[][] mySquares,ArrayList<TheSquare> listOfSquares,int typeOfGame){
+        for(int i=0;i<typeOfGame;i++){
+            for(int j=0;j<typeOfGame;j++){
+                int value=mySquares[i][j].getValue();
+                if(value!=0){
+                    tableOfTextViews[i][j].setText(""+value);
+                    String chosenColor=squaresColors.get(value).toString();
+                    tableOfTextViews[i][j].setBackgroundColor(Color.parseColor(chosenColor));
+                    if(listOfSquares.contains(mySquares[i][j])){
+                        listOfSquares.remove(mySquares[i][j]);
+                    }
+                }else{
+                    tableOfTextViews[i][j].setText("");
+                    tableOfTextViews[i][j].setBackgroundColor(Color.parseColor("#cdcec8"));
+                    if(!listOfSquares.contains((mySquares[i][j]))){
+                        listOfSquares.add(mySquares[i][j]);
+                    }
+                }
+            }
+        }
+        int emptySquares=listOfSquares.size();
+        if(emptySquares>0){
+            ArrayList<Integer> intTab= new ArrayList<Integer>();
+            for(int i=0;i<emptySquares;i++){
+                if(listOfSquares.get(i).getLine()==0 || listOfSquares.get(i).getColone()==0){
+                    intTab.add(i);
+                }
+            }
+            Random r=new Random();
+            int i,j;
+            if(intTab.size()>0){
+                j=r.nextInt(intTab.size());
+                i=intTab.get(j);
+            }else{
+                i=r.nextInt(intTab.size());
+            }
+            listOfSquares.get(i).setValue(2);
+            int line=listOfSquares.get(i).getLine();
+            int colon=listOfSquares.get(i).getColone();
+            tableOfTextViews[line][colon].setText(""+2);
+            tableOfTextViews[line][colon].setBackgroundColor(Color.parseColor("#ef9207"));
+            listOfSquares.remove(mySquares[line][colon]);
+        }
+    }
 
     static void initColor(){
         squaresColors.put(2   , "#ef9207");
@@ -74,7 +118,23 @@ public final class Ait2048 {
         squaresColors.put(8192, "#92ff16");
     }
 
-
+    static boolean zeroEqual(TheSquare[][] mySquares,int typeOfGame){
+        for(int i=0;i<typeOfGame-1;i++){
+            for(int j=0;j<typeOfGame-1;j++){
+                if(mySquares[i][j].getValue()==mySquares[i+1][j].getValue() || mySquares[i][j].getValue()==mySquares[i][j+1].getValue() )
+                    return false;
+            }
+        }
+        for(int i=0;i<typeOfGame-1;i++){
+            if(mySquares[i][typeOfGame-1].getValue()==mySquares[i+1][typeOfGame-1].getValue())
+                return false;
+        }
+        for(int i=0;i<typeOfGame;i++){
+            if(mySquares[typeOfGame-1][i].getValue()==mySquares[typeOfGame-1][i+1].getValue())
+            return false;
+        }
+        return  true;
+    }
     static boolean notAllZero(int i,int j,TheSquare[][] mySquares ){
         for(int k=0;k<i;k++){
             if(mySquares[k][j].getValue()>0)
