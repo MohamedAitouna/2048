@@ -18,14 +18,14 @@ import static com.example.ait.ait2048.Ait2048.initTheGame;
 import static com.example.ait.ait2048.Ait2048.isChangRL;
 import static com.example.ait.ait2048.Ait2048.isChangTD;
 
-public class MainActivity extends AppCompatActivity {
+public class Main2Activity extends AppCompatActivity {
 
-    private TextView[][] tableOfTextViews=new TextView[4][4];
+    private TextView[][] tableOfTextViews=new TextView[5][5];
     private TextView scoreTextView;
     private Button replayButton;
     private TableLayout myTableOfTheGame;
 
-    private TheSquare[][] mySquares=new TheSquare[4][4];
+    private TheSquare[][] mySquares=new TheSquare[5][5];
     private ArrayList<TheSquare> listOfSquares=new ArrayList<TheSquare>();
 
     private HashMap theColorsOfTheSquares=new HashMap();
@@ -36,17 +36,18 @@ public class MainActivity extends AppCompatActivity {
     private int isChanged=0;
     private int isDown=0;
     private float x,y;
+    private int  typeOfGame=5;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("AITGAMES 4x4");
-        setContentView(R.layout.activity_main);
+        setTitle("AITGAMES 5x5");
+        setContentView(R.layout.activity_main2);
 
         myTableOfTheGame=(TableLayout)findViewById(R.id.tableLayoutGame);
         scoreTextView=(TextView)findViewById(R.id.score);
-        for(int i=0;i<4;i++){
+        for(int i=0;i<typeOfGame;i++){
             TableRow row=(TableRow)myTableOfTheGame.getChildAt(i);
-            for(int j=0;j<4;j++){
+            for(int j=0;j<typeOfGame;j++){
                 tableOfTextViews[i][j]=(TextView)row.getChildAt(j);
             }
         }
@@ -55,19 +56,18 @@ public class MainActivity extends AppCompatActivity {
                                             @Override
                                             public void onClick(View v) {
                                                 listOfSquares.clear();
-                                                initTheGame(tableOfTextViews,mySquares,listOfSquares,4);
+                                                initTheGame(tableOfTextViews,mySquares,listOfSquares,typeOfGame);
                                             }
                                         }
 
         );
 
         initColor();
-        initTheGame(tableOfTextViews,mySquares,listOfSquares,4);
-
+        initTheGame(tableOfTextViews,mySquares,listOfSquares,typeOfGame);
     }
-    @Override
-    public boolean onTouchEvent(MotionEvent event){
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
         if(event.getAction()==MotionEvent.ACTION_DOWN && isDown==0){
             isDown=1;
             x=event.getX();
@@ -81,28 +81,24 @@ public class MainActivity extends AppCompatActivity {
             Log.i("Move","Good "+xX+" , "+yY);
             if(xX>0 && yY<xX && yY>-xX){
                 Log.d("Move Direction", "onTouchEvent: RiGHT->Left");
-                isChangRL(this,tableOfTextViews,mySquares,listOfSquares,4,1);
+                isChangRL(this,tableOfTextViews,mySquares,listOfSquares,typeOfGame,1);
             }else if(xX<0 && yY<-xX && yY>xX){
                 Log.d("Move Direction", "onTouchEvent: Left->Right");
-                isChangRL(this,tableOfTextViews,mySquares,listOfSquares,4,-1);
+                isChangRL(this,tableOfTextViews,mySquares,listOfSquares,typeOfGame,-1);
             }else if(yY<0 && xX<-yY && xX>yY){
                 Log.d("Move Direction", "onTouchEvent: Down->Up");
                 //isChang();
-                isChangTD(this,tableOfTextViews,mySquares,listOfSquares,4,1);
+                isChangTD(this,tableOfTextViews,mySquares,listOfSquares,typeOfGame,1);
             }else if(yY>0 && xX<yY && xX>-yY){
                 Log.d("Move Direction", "onTouchEvent: Up->Down");
-                isChangTD(this,tableOfTextViews,mySquares,listOfSquares,4,-1);
+                isChangTD(this,tableOfTextViews,mySquares,listOfSquares,typeOfGame,-1);
             }
         }
 
         return true;
     }
-
     @Override
     protected void onPause() {
         super.onPause();
     }
-
-
-
 }

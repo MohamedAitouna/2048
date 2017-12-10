@@ -3,6 +3,7 @@ package com.example.ait.ait2048;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -15,7 +16,8 @@ import java.util.Random;
 
 public final class Ait2048 {
     static Hashtable squaresColors = new Hashtable();
-
+    static int isChanged=0;
+    static int[] squaresValue=new int[10];
 
     //initialization our  game Objects
     static void initTheGame(TextView[][] tableOfTextViews,TheSquare[][] mySquares,ArrayList<TheSquare> listOfSquares,int typeOfGame){
@@ -28,10 +30,10 @@ public final class Ait2048 {
             }
         }
         Random r=new Random();
-        int line1=r.nextInt(3);
-        int colone1=r.nextInt(3);
-        int line2=r.nextInt(3);
-        int colone2=r.nextInt(3);
+        int line1=r.nextInt(typeOfGame-1);
+        int colone1=r.nextInt(typeOfGame-1);
+        int line2=r.nextInt(typeOfGame-1);
+        int colone2=r.nextInt(typeOfGame-1);
 
         tableOfTextViews[line1][colone1].setText(""+2);
         tableOfTextViews[line2][colone2].setText(""+2);
@@ -45,14 +47,15 @@ public final class Ait2048 {
         tableOfTextViews[line2][colone2].setBackgroundColor(Color.parseColor(firstColor));
 
     }
-    static void lose(MainActivity mainActivity){
+    static void lose(AppCompatActivity mainActivity, final TextView[][] tableOfTextViews, final TheSquare[][] mySquares, final ArrayList<TheSquare> listOfSquares, final int typeOfGame){
         AlertDialog.Builder adb=new AlertDialog.Builder(mainActivity);
         adb.setTitle("GAME OVER :D");
         adb.setMessage("The Score :");
         adb.setPositiveButton("End", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-
+                listOfSquares.clear();
+                initTheGame(tableOfTextViews,mySquares,listOfSquares,typeOfGame);
             }
         });
         adb.show();
@@ -91,7 +94,7 @@ public final class Ait2048 {
                 j=r.nextInt(intTab.size());
                 i=intTab.get(j);
             }else{
-                i=r.nextInt(intTab.size());
+                i=r.nextInt(listOfSquares.size());
             }
             listOfSquares.get(i).setValue(2);
             int line=listOfSquares.get(i).getLine();
@@ -100,6 +103,81 @@ public final class Ait2048 {
             tableOfTextViews[line][colon].setBackgroundColor(Color.parseColor("#ef9207"));
             listOfSquares.remove(mySquares[line][colon]);
         }
+    }
+    static  boolean  squaresEqual(TheSquare[][] mySquares,int  typeOfGame,int line,int colone ){
+          if(colone>-1){
+            for(int i=0;i<typeOfGame;i++){
+                if(squaresValue[i]==mySquares[i][colone].getValue())
+                    return true;
+            }
+          }else{
+              for(int i=0;i<typeOfGame;i++){
+                  if(squaresValue[i]==mySquares[line][i].getValue())
+                      return true;
+              }
+          }
+        return false;
+    }
+    static   void  isChangTD(AppCompatActivity mainActivity,TextView[][] tableOfTextViews,TheSquare[][] mySquares,ArrayList<TheSquare> listOfSquares,int typeOfGame,int direction){
+        isChanged=0;
+        for (int i=0;i<typeOfGame;i++){
+            if(isChanged==0){
+                for(int j=0;j<typeOfGame;j++){
+                    squaresValue[j]=mySquares[j][i].getValue();
+                }
+            }
+            if(direction==1){
+                goToDown(typeOfGame-1,i,mySquares);
+            }else{
+                goToTop(typeOfGame,i,mySquares);
+            }
+
+            if(isChanged==0){
+                 if(squaresEqual(mySquares,typeOfGame,-1,i)){
+                      isChanged=1;
+                     }
+            }
+        }
+            if(isChanged!=0){
+                setUpChanges( tableOfTextViews,mySquares,listOfSquares,typeOfGame);
+            }
+            if(listOfSquares.size()==0){
+                if(zeroEqual(mySquares,typeOfGame)==true){
+                    lose(mainActivity,tableOfTextViews,mySquares,listOfSquares,typeOfGame);
+                }
+
+            }
+
+    }
+    static   void  isChangRL(AppCompatActivity mainActivity,TextView[][] tableOfTextViews,TheSquare[][] mySquares,ArrayList<TheSquare> listOfSquares,int typeOfGame,int direction){
+        isChanged=0;
+        for (int i=0;i<typeOfGame;i++){
+            if(isChanged==0){
+                for(int j=0;j<typeOfGame;j++){
+                    squaresValue[j]=mySquares[j][i].getValue();
+                }
+            }
+            if(direction==1){
+                goToLeft(i,typeOfGame,mySquares);
+            }else{
+                goToRight(i,typeOfGame,mySquares);
+            }
+            if(isChanged==0){
+                if(squaresEqual(mySquares,typeOfGame,i,-1)){
+                    isChanged=1;
+                }
+            }
+        }
+        if(isChanged!=0){
+            setUpChanges( tableOfTextViews,mySquares,listOfSquares,typeOfGame);
+        }
+        if(listOfSquares.size()==0){
+            if(zeroEqual(mySquares,typeOfGame)==true){
+                lose(mainActivity,tableOfTextViews,mySquares,listOfSquares,typeOfGame);
+            }
+
+        }
+
     }
 
     static void initColor(){
@@ -129,7 +207,7 @@ public final class Ait2048 {
             if(mySquares[i][typeOfGame-1].getValue()==mySquares[i+1][typeOfGame-1].getValue())
                 return false;
         }
-        for(int i=0;i<typeOfGame;i++){
+        for(int i=0;i<typeOfGame-1;i++){
             if(mySquares[typeOfGame-1][i].getValue()==mySquares[typeOfGame-1][i+1].getValue())
             return false;
         }
@@ -142,6 +220,8 @@ public final class Ait2048 {
         }
     return false;
     }
+
+
 
     static void goToDown(int i,int j,TheSquare[][] mySquares){
         if(i>0){
@@ -173,6 +253,27 @@ public final class Ait2048 {
                 mySquares[0][j].setValue(0);
             }
         }
+    }
+    static void goToLeft(int i,int typeOfGame,TheSquare[][] mySquares){
+        TheSquare[][] mySquaresTmp=new TheSquare[typeOfGame][1];
+        for(int k=0;k<typeOfGame;k++){
+            mySquaresTmp[k][0]=mySquares[i][typeOfGame-1-k];
+        }
+        goToDown(typeOfGame-1,0,mySquaresTmp);
+    }
+    static void goToRight(int i,int typeOfGame,TheSquare[][] mySquares){
+        TheSquare[][] mySquaresTmp=new TheSquare[typeOfGame][1];
+        for(int k=0;k<typeOfGame;k++){
+            mySquaresTmp[k][0]=mySquares[i][k];
+        }
+        goToDown(typeOfGame-1,0,mySquaresTmp);
+    }
+    static void goToTop(int typeOfGame,int j,TheSquare[][] mySquares){
+        TheSquare[][] mySquaresTmp=new TheSquare[typeOfGame][1];
+        for(int k=0;k<typeOfGame;k++){
+            mySquaresTmp[k][0]=mySquares[typeOfGame-1-k][j];
+        }
+        goToDown(typeOfGame-1,0,mySquaresTmp);
     }
 
 }
